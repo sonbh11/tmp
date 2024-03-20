@@ -10,32 +10,27 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
-
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.auth.FirebaseUser;
 
 public class Login extends AppCompatActivity {
 
-    private FirebaseAuth mFirebaseAuth;
-    private DatabaseReference mDatabaseReference;
-
+    private FirebaseAuth mAuth;
     private Button login, regist;
     private EditText input_StdNum, input_Pwd;
     private TextView ErrorMsg;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        mFirebaseAuth = FirebaseAuth.getInstance();
-        mDatabaseReference = FirebaseDatabase.getInstance().getReference("GuideBook");
+        mAuth = FirebaseAuth.getInstance();
 
         login = findViewById(R.id.Login);
         regist = findViewById(R.id.Regist);
@@ -51,7 +46,7 @@ public class Login extends AppCompatActivity {
                 String StdNum = input_StdNum.getText().toString();
                 String Password = input_Pwd.getText().toString();
 
-                run(StdNum, Password);
+                signIn(StdNum, Password);
             }
         });
 
@@ -62,42 +57,39 @@ public class Login extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
     }
 
-    public void run(String StdNum, String Password){
+    private void signIn(String StdNum, String Password) {
+        String email = StdNum + "@example.com"; // 학번을 이메일 주소의 로컬 파트로 사용
+        mAuth.signInWithEmailAndPassword(email, Password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            if (user != null) {
+                                String uid = user.getUid();
+                                String name = user.getDisplayName();
+                                MainActivity.stdNum = StdNum;
+                                MainActivity.name = name;
 
-        mDatabaseReference.child("UserAccount").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.child(StdNum).exists()){
-                    String pwd = snapshot.child(StdNum).child("password").getValue(String.class);
-
-                    if(Password.equals(pwd)){
-                        MainActivity.stdNum = StdNum;
-                        MainActivity.name = snapshot.child(StdNum).child("name").getValue(String.class);
-
-                        Intent intent = new Intent(Login.this, MainActivity.class);
-                        startActivity(intent);
-                        finish();
-                    } else {
-                        ErrorMsg.setText("학번과 비밀번호가 일치하지 않습니다.");
+                                Intent intent = new Intent(Login.this, MainActivity.class);
+                                startActivity(intent);
+                                finish();
+                            }
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Toast.makeText(Login.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+                        }
                     }
-                } else {
-                    ErrorMsg.setText("학번이 존재하지 않습니다.");
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("Login", "Database error: Login");
-            }
-        });
-
+                });
     }
+
+
     @Override
     public void onBackPressed() {
         finishAffinity();
     }
-
 }

@@ -3,6 +3,7 @@ package com.example.tmp;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,15 +15,15 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
-import java.util.concurrent.CompletableFuture;
 
 public class Register extends AppCompatActivity {
 
@@ -41,10 +42,7 @@ public class Register extends AppCompatActivity {
         mFirebaseAuth = FirebaseAuth.getInstance();
         mDatabaseReference = FirebaseDatabase.getInstance().getReference("GuideBook");
 
-        //**************************************************************수정내역
         departmentSpinner = findViewById(R.id.department_spinner);
-        //**************************************************************수정내역
-
         input_stdnum = findViewById(R.id.id_input);
         input_pwd = findViewById(R.id.pwd_input);
         input_pwdcheck = findViewById(R.id.confirm_input);
@@ -57,29 +55,19 @@ public class Register extends AppCompatActivity {
         register = findViewById(R.id.register_button);
         cancel = findViewById(R.id.cancel_button);
 
-        //**************************************************************수정내역
-        //- res/values/departments.xml 파일 내에 배열로 선언된 학과리스트 가져오기
-        Resources res = getResources();
-        // 가져와서 departments에 저장
-        String[] departments = res.getStringArray(R.array.department_list);
-        // 어댑터로 스피너에 학과정보 추가
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, departments);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        departmentSpinner.setAdapter(adapter);
-        //**************************************************************수정내역
-
+        // 학과(부서) 스피너 설정
+        setupDepartmentSpinner();
 
         register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                String StdNum = input_stdnum.getText().toString();
-                String Pwd = input_pwd.getText().toString();
-                String Pwd_check = input_pwdcheck.getText().toString();
-                String Name = input_name.getText().toString();
+                String stdNum = input_stdnum.getText().toString();
+                String pwd = input_pwd.getText().toString();
+                String pwdCheck = input_pwdcheck.getText().toString();
+                String name = input_name.getText().toString();
                 String selectedDepartment = departmentSpinner.getSelectedItem().toString();
 
-                SignUp(Name, StdNum, Pwd, Pwd_check,selectedDepartment);
+                signUp(name, stdNum, pwd, pwdCheck, selectedDepartment);
             }
         });
 
@@ -91,65 +79,67 @@ public class Register extends AppCompatActivity {
         });
     }
 
-    public static boolean isNumeric(String str){
-        return str != null && str.matches("[0-9]+");
+    private void setupDepartmentSpinner() {
+        Resources res = getResources();
+        String[] departments = res.getStringArray(R.array.department_list);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, departments);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        departmentSpinner.setAdapter(adapter);
     }
 
-    public void SignUp(String Name, String StdNum, String Pwd, String Pwd_check,String Department){
-        mDatabaseReference.child("UserAccount").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
+    private void signUp(String name, String stdNum, String pwd, String pwdCheck, String department) {
+        mFirebaseAuth.createUserWithEmailAndPassword(stdNum + "@example.com", pwd)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // 사용자가 성공적으로 등록되었으면 사용자 정보를 데이터베이스에 저장
+                            UserAccount user = new UserAccount();
+                            user.setName(name);
+                            user.setStdNum(stdNum);
+                            user.setPassword(pwd);
+                            user.setDepartment(department);
 
-                boolean check = true;
+                            mDatabaseReference.child("UserAccount").child(stdNum).setValue(user);
 
-                if(snapshot.child(StdNum).exists()){
-                    std_error.setText("이미 등록됨");
-                    check = false;
-                }else std_error.setText("");
-
-                if(confirmation(Name, StdNum, Pwd, Pwd_check) && check) {
-                    UserAccount user = new UserAccount();
-                    user.setName(Name);
-                    user.setStdNum(StdNum);
-                    user.setPassword(Pwd);
-                    user.setDepartment(Department);
-
-                    mDatabaseReference.child("UserAccount").child(StdNum).setValue(user);
-
-                    finish();
-                }
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("Register", "Database error: Register");
-            }
-        });
+                            Toast.makeText(Register.this, "회원가입 성공!", Toast.LENGTH_SHORT).show();
+                            finish();
+                        } else {
+                            // 사용자 등록에 실패한 경우
+                            Toast.makeText(Register.this, "회원가입 실패: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
     }
 
-    public boolean confirmation(String Name, String StdNum, String Pwd, String Pwd_check){
-        boolean check = true;
 
-        if (!(isNumeric(StdNum) && StdNum.length() == 8)) {
-            std_error.setText("올바르지 않음");
-            check = false;
+    private boolean validateInput(String name, String stdNum, String pwd, String pwdCheck) {
+        boolean isValid = true;
+
+        if (name.isEmpty()) {
+            name_error.setText("이름을 입력하세요.");
+            isValid = false;
         } else {
-            if(!std_error.getText().toString().equals("이미 등록됨"))
-                std_error.setText("");
+            name_error.setText("");
         }
 
-        if (!(Pwd.equals(Pwd_check))){
-            pwd_error.setText("올바르지 않음");
-            check = false;
-        } else pwd_error.setText("");
+        if (stdNum.isEmpty() || stdNum.length() != 8) {
+            std_error.setText("올바른 학번을 입력하세요.");
+            isValid = false;
+        } else {
+            std_error.setText("");
+        }
 
-        if (Name.length() > 6){
-            name_error.setText("글자수 초과");
-            check = false;
-        } else name_error.setText("");
+        if (pwd.isEmpty() || pwd.length() < 6) {
+            pwd_error.setText("비밀번호는 6자 이상이어야 합니다.");
+            isValid = false;
+        } else if (!pwd.equals(pwdCheck)) {
+            pwd_error.setText("비밀번호가 일치하지 않습니다.");
+            isValid = false;
+        } else {
+            pwd_error.setText("");
+        }
 
-        return check;
+        return isValid;
     }
-
 }

@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "1086471562404",
+    "firebase_url": "https://university-guidebook-default-rtdb.firebaseio.com",
+    "project_id": "university-guidebook",
+    "storage_bucket": "university-guidebook.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1086471562404:android:61180321d17d5a4604f231",
+        "android_client_info": {
+          "package_name": "com.YS0529.DoTask"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCmGGRMlb50cprBLTXVFX19VUbSXRHppqA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1086471562404:android:a126ecaa659c738604f231",
+        "android_client_info": {
+          "package_name": "com.example.tmp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCmGGRMlb50cprBLTXVFX19VUbSXRHppqA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1086471562404:android:8997e143183a948e04f231",
+        "android_client_info": {
+          "package_name": "com.example.universityguidebook"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCmGGRMlb50cprBLTXVFX19VUbSXRHppqA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

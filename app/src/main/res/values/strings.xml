@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">University GuideBook</string>
+    <string name="ek_img_content">ExportKit Image</string>
+    <string name="q_a_board_ek4_string">Q&amp;A Board</string>
+    <string name="add_button">add_button</string>
+    <string name="line">line</string>
+    <string name="search_button">search_button</string>
+    <string name="search">Search</string>
+    <string name="answer_text">댓글</string>
+    <string name="cancel">취소</string>
+    <string name="add_qeustion">등록</string>
+    <string name="title">Title</string>
+    <string name="add_tag">태그추가</string>
+    <string name="question_item_line">question_item_line</string>
+</resources>

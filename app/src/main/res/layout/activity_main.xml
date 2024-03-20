@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <!-- 학사정보 버튼 -->
+    <Button
+        android:id="@+id/btn_haksa_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_centerHorizontal="true"
+        android:text="학사정보" />
+
+    <!-- 학과홈페이지 버튼 -->
+    <Button
+        android:id="@+id/btn_department"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/btn_haksa_info"
+        android:layout_marginTop="16dp"
+        android:layout_centerHorizontal="true"
+        android:text="학과홈페이지"
+        android:padding="16dp"
+        android:gravity="center" />
+
+    <!-- URP 버튼 -->
+    <Button
+        android:id="@+id/btn_urp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/btn_department"
+        android:layout_marginTop="16dp"
+        android:layout_centerHorizontal="true"
+        android:text="URP"
+        android:padding="16dp"
+        android:gravity="center" />
+
+    <!-- 캠퍼스맵 버튼 -->
+    <Button
+        android:id="@+id/btn_campus_map"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/btn_urp"
+        android:layout_marginTop="16dp"
+        android:layout_centerHorizontal="true"
+        android:text="캠퍼스맵"
+        android:padding="16dp"
+        android:gravity="center" />
+
+    <!-- WebView -->
+    <WebView
+        android:id="@+id/web_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+</RelativeLayout>
